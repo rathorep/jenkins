@@ -5,7 +5,11 @@ metadata:
   labels:
     app: nginx
 spec:
+<<<<<<< HEAD
   replicas: 5
+=======
+  replicas: 2
+>>>>>>> 7d47d911bb75930e606dccee77250a069503f970
   selector:
     matchLabels:
       app: nginx
