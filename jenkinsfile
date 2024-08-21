@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Set environment variables for Docker Hub credentials
-        DOCKER_CREDENTIALS_ID = 'pavan.cs02132@gmail.com'
+        DOCKER_CREDENTIALS_ID = 'dockerhub'
         DOCKER_IMAGE_NAME = 'rathorep/python:1.0'
     }
 
