@@ -23,7 +23,7 @@ pipeline {
         stage('Push docker image to docker registry') {
             steps {
                 script {
-                    docker.withRegistry('', creds) {
+                    docker.withRegistry('', 'dockerhub') {
                         dockerImage.push('1.0')
                     }
                 }
