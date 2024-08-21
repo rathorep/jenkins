@@ -8,13 +8,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                // Checkout the code from the repository
-                git branch: 'main', url: 'https://github.com/rathorep/jenkins.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
