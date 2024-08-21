@@ -1,11 +1,14 @@
 pipeline {
     agent any
 
+    environment {
+        app = ''
+    }
     stages {
         stage('Build Docker Image') {
             steps {
                 script {
-                    app = docker.build("rathorep/test")
+                    app = docker.build("rathorep/python")
                 }
             }
         }
