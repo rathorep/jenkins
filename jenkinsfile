@@ -3,7 +3,11 @@ pipeline {
 
     stages {
         stage('Build Docker Image') {
-            def image = docker.build("rathorep/python:1.0")
+            steps {
+                script {
+                    def image = docker.build("rathorep/python:1.0")
+                }
+            }
         }
         stage('Push Docker Image') {
             steps {
