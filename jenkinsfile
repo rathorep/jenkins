@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+    
+    environment {
+        dockerImage = ''
+        registry = 'rathorep/python_one'
+        creds = 'dockerhub'
+    }
+
+    stages {
+        stage('checkout') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/rathorep/jenkins.git']])
+            }
+        }
+        stage('Build docker Image') {
+            steps {
+                script {
+                    dockerImage = docker.build registry
+                }
+            }
+        }
+        stage('Push docker image to docker registry') {
+            steps {
+                script {
+                    docker.withRegistry('', creds) {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+    }
+}
