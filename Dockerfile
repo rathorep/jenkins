@@ -4,4 +4,4 @@ COPY second.py /opt/
 
 WORKDIR /opt
 
-ENTRYPOINT ["python", "second.py"] 
+ENTRYPOINT ["python", "second.py"]
