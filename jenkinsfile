@@ -2,32 +2,60 @@ pipeline {
     agent any
     
     environment {
-        dockerImage = ''
-        registry = 'rathorep/python_one'
-        creds = 'dockerhub'
+        // Define environment variables for ECR
+        ECR_REGISTRY = '123456789012.dkr.ecr.us-west-1.amazonaws.com' // Replace with your ECR registry URL
+        ECR_CREDENTIALS_ID = 'ecr-credentials-id' // Jenkins credentials ID for AWS ECR
+        IMAGE_CONFIGS = [
+            [name: 'python', dockerfile: 'python/Dockerfile'],
+            [name: 'go', dockerfile: 'go/Dockerfile'],
+            [name: 'jenkins', dockerfile: 'jenkins/Dockerfile']
+        ]
     }
-
+    
     stages {
-        stage('checkout') {
+        stage('Checkout') {
             steps {
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/rathorep/jenkins.git']])
             }
         }
-        stage('Build docker Image') {
+        
+        stage('Build and Push Docker Images') {
             steps {
                 script {
-                    dockerImage = docker.build registry
-                }
-            }
-        }
-        stage('Push docker image to docker registry') {
-            steps {
-                script {
-                    docker.withRegistry('', 'dockerhub') {
-                        dockerImage.push('1.0')
+                    // Login to AWS ECR
+                    withAWS(credentials: ECR_CREDENTIALS_ID, region: 'ap-south-1') {
+                        IMAGE_CONFIGS.each { config ->
+                            def imageName = config.name
+                            def dockerfile = config.dockerfile
+                            def imageTag = "${ECR_REGISTRY}/${imageName}:${env.BUILD_ID}"
+                            
+                            // Build the Docker image
+                            echo "Building Docker image ${imageTag} using Dockerfile ${dockerfile}"
+                            docker.build(imageTag, "--file ${dockerfile} --tag ${imageTag} .")
+                            
+                            // Push the Docker image to ECR
+                            echo "Pushing Docker image ${imageTag}"
+                            docker.withRegistry("https://${ECR_REGISTRY}", ECR_CREDENTIALS_ID) {
+                                sh "docker push ${imageTag}"
+                            }
+                        }
                     }
                 }
             }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Docker images built and pushed successfully!'
+        }
+        
+        failure {
+            echo 'Docker image build or push failed!'
+        }
+        
+        always {
+            cleanWs() // Clean workspace after build
         }
     }
 }
